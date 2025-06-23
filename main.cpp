@@ -12,7 +12,7 @@
 #pragma endregion includes
 using namespace std;
 #pragma region constants
-const string SIPL_VER = "0.2.1";
+const string SIPL_VER = "0.2.1-pre1";
 #pragma endregion constants
 
 class Interpreter
@@ -73,6 +73,48 @@ private:
             cout << "[DEBUG] " << t << endl;
     }
 
+    void print_help()
+    {
+        cout << "SIPL token list\n\n"
+             << "PRNT [text]                      - print text (supports $variables)\n"
+             << "VAR [name] = [val]               - define a variable\n"
+             << "INPT [varname]                   - read stdin into variable\n"
+             << "GOTO [label]                     - jump to label\n"
+             << ":label                           - define label\n"
+             << "IF var [operand] val : [action]  - run action if condition met (Supported operands: == != < > <= >=)\n"
+             << "HLP                              - show help message\n"
+             << "DMP                              - dump program data (debug only)\n"
+             << "_comment                         - ignored line\n\n";
+    }
+
+    void error(const string &msg, const string &line = "")
+    {
+        cerr << "[ERROR] " << msg;
+        if (!line.empty())
+            cerr << " | Line: \"" << line << "\"";
+        cerr << endl;
+    }
+    string normal_itoa(int a)
+    {
+        // TODO: remove
+        string ret = "";
+        if (a == 0)
+            return "0";
+        while (a > 0)
+        {
+            int c = a % 10;
+            char cc = "0123456789"[c];
+            ret = cc + ret;
+            a = a / 10;
+        }
+        return ret;
+    }
+
+public:
+    Interpreter(bool debug = 0)
+    {
+        this->debug_verbose = debug;
+    }
     string eval_expr(const string &s)
     {
         if (s.empty())
@@ -134,49 +176,6 @@ private:
         }
 
         return stack.empty() ? "" : to_string(stack[0]);
-    }
-
-    void print_help()
-    {
-        cout << "SIPL token list\n\n"
-             << "PRNT [text]                      - print text (supports $variables)\n"
-             << "VAR [name] = [val]               - define a variable\n"
-             << "INPT [varname]                   - read stdin into variable\n"
-             << "GOTO [label]                     - jump to label\n"
-             << ":label                           - define label\n"
-             << "IF var [operand] val : [action]  - run action if condition met (Supported operands: == != < > <= >=)\n"
-             << "HLP                              - show help message\n"
-             << "DMP                              - dump program data (debug only)\n"
-             << "_comment                         - ignored line\n\n";
-    }
-
-    void error(const string &msg, const string &line = "")
-    {
-        cerr << "[ERROR] " << msg;
-        if (!line.empty())
-            cerr << " | Line: \"" << line << "\"";
-        cerr << endl;
-    }
-    string normal_itoa(int a)
-    {
-        // TODO: remove
-        string ret = "";
-        if (a == 0)
-            return "0";
-        while (a > 0)
-        {
-            int c = a % 10;
-            char cc = "0123456789"[c];
-            ret = cc + ret;
-            a = a / 10;
-        }
-        return ret;
-    }
-
-public:
-    Interpreter(bool debug = 0)
-    {
-        this->debug_verbose = debug;
     }
     int exec_line(string line, int &i)
     {
@@ -326,6 +325,13 @@ public:
                 for (pair<string, string> var : vars)
                 {
                     debug_print("- " + var.first + " = " + var.second);
+                }
+                debug_print("## ARRAYS:");
+                for(pair<string,vector<string>> arr : arrays){
+                    debug_print("- " + arr.first);
+                    for(string v : arr.second){
+                        debug_print("| - "+v);
+                    }
                 }
                 cout<<"P. S. If you see no output, you might have debug mode disabled.\n";
             }
