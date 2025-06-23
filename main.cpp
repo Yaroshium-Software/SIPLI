@@ -12,7 +12,7 @@
 #pragma endregion includes
 using namespace std;
 #pragma region constants
-const string SIPL_VER = "0.2.1";
+const string SIPL_VER = "0.2.1-pre1";
 #pragma endregion constants
 
 class Interpreter
@@ -326,6 +326,13 @@ public:
                 for (pair<string, string> var : vars)
                 {
                     debug_print("- " + var.first + " = " + var.second);
+                }
+                debug_print("## ARRAYS:");
+                for(pair<string,vector<string>> arr : arrays){
+                    debug_print("- " + arr.first);
+                    for(string v : arr.second){
+                        debug_print("| "+v);
+                    }
                 }
                 cout<<"P. S. If you see no output, you might have debug mode disabled.\n";
             }
