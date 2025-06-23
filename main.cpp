@@ -19,6 +19,7 @@ class Interpreter
 {
     unordered_map<string, string> vars;
     unordered_map<string, int> labels;
+    unordered_map<string, vector<string>> arrays;
     vector<string> lines;
     bool debug_verbose;
 
@@ -145,6 +146,7 @@ private:
              << ":label                           - define label\n"
              << "IF var [operand] val : [action]  - run action if condition met (Supported operands: == != < > <= >=)\n"
              << "HLP                              - show help message\n"
+             << "DMP                              - dump program data (debug only)\n"
              << "_comment                         - ignored line\n\n";
     }
 
@@ -271,7 +273,7 @@ public:
 
                     if (cond_met)
                     {
-                        exec_line(action,i);
+                        exec_line(action, i);
                     }
                 }
                 else
@@ -305,6 +307,21 @@ public:
                 debug_print("Exiting.");
                 i = lines.size();
                 return -1;
+            }
+            else if (starts_with(line, "DMP"))
+            {
+                debug_print("PROGRAM DATA DUMP:");
+                debug_print("## LABELS:");
+                for (pair<string, int> label : labels)
+                {
+                    debug_print("- " + label.first + " at " + normal_itoa(label.second));
+                }
+                debug_print("## VARIABLES:");
+                for (pair<string, string> var : vars)
+                {
+                    debug_print("- " + var.first + " = " + var.second);
+                }
+                cout<<"P. S. If you see no output, you might have debug mode disabled.\n";
             }
             else
             {
@@ -341,9 +358,11 @@ public:
         {
             string line = trim(lines[i]);
             debug_print("L " + normal_itoa(i) + " / " + normal_itoa(lines.size()) + " : " + line);
-            int res = exec_line(line,i);
-            if(res==0) break;
-            else if(res==-1) return 0;
+            int res = exec_line(line, i);
+            if (res == 0)
+                break;
+            else if (res == -1)
+                return 0;
         }
         return 1;
     }
@@ -369,17 +388,19 @@ int main(int argc, char *argv[])
             fpath = argv[argn + 1];
             argn++;
         }
-        else if((string)argv[argn]==(string)"-h"){
-            cout<<"SIPLI argument list\n"
-                <<"-h - show this message\n"
-                <<"-f [file] - run file\n"
-                <<"\n"
-                <<"--debug - enable debug mode for extended debug debugging of debugger (obsolete (no))"
-                <<endl;
+        else if ((string)argv[argn] == (string) "-h")
+        {
+            cout << "SIPLI argument list\n"
+                 << "-h - show this message\n"
+                 << "-f [file] - run file\n"
+                 << "\n"
+                 << "--debug - enable debug mode for extended debug debugging of debugger (obsolete (no))"
+                 << endl;
             return 0;
         }
-        else{
-            cout<<"Unrecognized argument: "<<argv[argn]<<endl;
+        else
+        {
+            cout << "Unrecognized argument: " << argv[argn] << endl;
             return 0;
         }
     }
@@ -398,14 +419,15 @@ int main(int argc, char *argv[])
     }
     else
     {
-        cout<<"SIPLI version "<<SIPL_VER<<"\nUse HLP for help or pass -h argument for parameter list.\n";
+        cout << "SIPLI version " << SIPL_VER << "\nUse HLP for help or pass -h argument for parameter list.\n";
         Interpreter evaluator(debug);
         while (1)
         {
             cout << ">>> ";
             string q;
             getline(cin, q);
-            if(!evaluator.run(q)){
+            if (!evaluator.run(q))
+            {
                 break;
             }
         }
