@@ -35,7 +35,7 @@ private:
     static vector<string> split(const string &str, char delimiter)
     {
         vector<string> result;
-        stringstream ss(str); // ⚡⚡
+        stringstream ss(str);
         string item;
         while (getline(ss, item, delimiter))
         {
