@@ -12,7 +12,7 @@
 #pragma endregion includes
 using namespace std;
 #pragma region constants
-const string SIPL_VER = "0.2.0";
+const string SIPL_VER = "0.2.1";
 #pragma endregion constants
 
 class Interpreter
@@ -213,8 +213,14 @@ public:
                 debug_print("Checking label " + label);
                 if (labels.count(label))
                 {
-                    i = labels[label] - 1;
-                    debug_print("Label found at line " + normal_itoa(i) + ", jumping");
+                    if(labels[label] == i){
+                        error("GOTO instruction jumped to self");
+                        return 0;
+                    }
+                    else{
+                        i = labels[label] - 1;
+                        debug_print("Label found at line " + normal_itoa(i) + ", jumping");
+                    }
                 }
                 else
                 {
