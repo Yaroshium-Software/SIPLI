@@ -186,12 +186,13 @@ public:
                 debug_print("Line empty");
                 return 1;
             }
+            vector<string> arg = split(line,' ');
 
-            if (starts_with(line, "PRNT"))
+            if (arg[0] == "PRNT")
             {
                 handle_echo(trim(line.substr(4)));
             }
-            else if (starts_with(line, "VAR"))
+            else if (arg[0] == "VAR")
             {
                 string rest = trim(line.substr(3));
                 size_t eq = rest.find('=');
@@ -206,9 +207,9 @@ public:
                     error("Invalid VAR syntax", line);
                 }
             }
-            else if (starts_with(line, "GOTO"))
+            else if (arg[0] == "GOTO")
             {
-                string label = trim(line.substr(4));
+                string label = arg[1];
                 debug_print("Checking label " + label);
                 if (labels.count(label))
                 {
@@ -226,7 +227,7 @@ public:
                     error("Label not found: " + label, line);
                 }
             }
-            else if (starts_with(line, "IF"))
+            else if (arg[0] == "IF")
             {
                 string rest = trim(line.substr(2));
                 size_t colon = rest.find(':');
@@ -287,7 +288,7 @@ public:
                     return 0;
                 }
             }
-            else if (starts_with(line, "INPT"))
+            else if (arg[0] == "INPT")
             {
                 string varname = trim(line.substr(4));
                 if (varname.empty())
@@ -303,17 +304,17 @@ public:
                 }
                 vars[varname] = trim(value);
             }
-            else if (starts_with(line, "HLP"))
+            else if (arg[0] == "HLP")
             {
                 print_help();
             }
-            else if (starts_with(line, "EXIT"))
+            else if (arg[0] == "EXIT")
             {
                 debug_print("Exiting.");
                 i = lines.size();
                 return -1;
             }
-            else if (starts_with(line, "DMP"))
+            else if (arg[0] == "DMP")
             {
                 debug_print("PROGRAM DATA DUMP:");
                 debug_print("## LABELS:");
@@ -350,14 +351,14 @@ public:
     }
     bool run(const string &program)
     {
-        debug_print("In debug mode");
+        debug_print("Running in debug mode");
         lines = split(program, ';');
 
         for (int i = 0; i < lines.size(); ++i)
         {
-            debug_print("Checking for labels at line " + normal_itoa(i));
+            //debug_print("Checking for labels at line " + normal_itoa(i));
             string line = trim(lines[i]);
-            debug_print(line);
+            //debug_print(line);
             if (!line.empty() && line[0] == ':')
             {
                 string label = trim(line.substr(1));
@@ -386,11 +387,12 @@ int main(int argc, char *argv[])
     bool debug = 0;
     for (int argn = 1; argn < argc; argn++)
     {
-        if ((string)argv[argn] == (string) "--debug")
+        string sa = argv[argn];
+        if (sa == "--debug" || sa == "-d")
         {
             debug = 1;
         }
-        else if ((string)argv[argn] == (string) "-f")
+        else if (sa == "-f" || sa == "--file")
         {
             if (argc <= argn + 1)
             {
@@ -400,13 +402,13 @@ int main(int argc, char *argv[])
             fpath = argv[argn + 1];
             argn++;
         }
-        else if ((string)argv[argn] == (string) "-h")
+        else if (sa == "-h" || sa == "--help")
         {
             cout << "SIPLI argument list\n"
-                 << "-h - show this message\n"
-                 << "-f [file] - run file\n"
+                 << "-h | --help        - show this message\n"
+                 << "-f | --file [file] - run file\n"
                  << "\n"
-                 << "--debug - enable debug mode for extended debug debugging of debugger (obsolete (no))"
+                 << "-d | --debug       - enable debug mode for extended debug debugging of debugger (obsolete (no))"
                  << endl;
             return 0;
         }
