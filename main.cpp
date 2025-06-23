@@ -219,7 +219,7 @@ public:
                     }
                     else{
                         i = labels[label] - 1;
-                        debug_print("Label found at line " + normal_itoa(i) + ", jumping");
+                        debug_print("Label found at line " + normal_itoa(i+1) + ", jumping");
                     }
                 }
                 else
@@ -320,7 +320,7 @@ public:
                 debug_print("## LABELS:");
                 for (pair<string, int> label : labels)
                 {
-                    debug_print("- " + label.first + " at " + normal_itoa(label.second));
+                    debug_print("- " + label.first + " at line " + normal_itoa(label.second+1));
                 }
                 debug_print("## VARIABLES:");
                 for (pair<string, string> var : vars)
@@ -356,13 +356,11 @@ public:
 
         for (int i = 0; i < lines.size(); ++i)
         {
-            //debug_print("Checking for labels at line " + normal_itoa(i));
             string line = trim(lines[i]);
-            //debug_print(line);
             if (!line.empty() && line[0] == ':')
             {
                 string label = trim(line.substr(1));
-                debug_print("Found label " + label);
+                debug_print("Found label " + label + " at line "+normal_itoa(i+1));
                 labels[label] = i;
             }
         }
@@ -370,7 +368,7 @@ public:
         for (int i = 0; i < lines.size(); ++i)
         {
             string line = trim(lines[i]);
-            debug_print("L " + normal_itoa(i) + " / " + normal_itoa(lines.size()) + " : " + line);
+            debug_print("L " + normal_itoa(i+1) + " / " + normal_itoa(lines.size()) + " : " + line);
             int res = exec_line(line, i);
             if (res == 0)
                 break;
