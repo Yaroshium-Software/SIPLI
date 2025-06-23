@@ -1,3 +1,4 @@
+#pragma region includes
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -8,11 +9,13 @@
 #include <cstdlib>
 #include <cmath>
 #include <exception>
-
+#pragma endregion includes
 using namespace std;
+#pragma region constants
 const string SIPL_VER = "0.2.0";
+#pragma endregion constants
 
-class Ev
+class Interpreter
 {
     unordered_map<string, string> vars;
     unordered_map<string, int> labels;
@@ -154,6 +157,7 @@ private:
     }
     string normal_itoa(int a)
     {
+        // TODO: remove
         string ret = "";
         if (a == 0)
             return "0";
@@ -168,7 +172,7 @@ private:
     }
 
 public:
-    Ev(bool debug = 0)
+    Interpreter(bool debug = 0)
     {
         this->debug_verbose = debug;
     }
@@ -389,13 +393,13 @@ int main(int argc, char *argv[])
         }
         stringstream buffer;
         buffer << file.rdbuf();
-        Ev evaluator(debug);
+        Interpreter evaluator(debug);
         evaluator.run(buffer.str());
     }
     else
     {
         cout<<"SIPLI version "<<SIPL_VER<<"\nUse HLP for help or pass -h argument for parameter list.\n";
-        Ev evaluator(debug);
+        Interpreter evaluator(debug);
         while (1)
         {
             cout << ">>> ";
