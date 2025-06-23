@@ -1,0 +1,3 @@
+# SIPL TODOS
+- Arrays
+- Random
