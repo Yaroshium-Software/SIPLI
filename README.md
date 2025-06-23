@@ -1,2 +1,2 @@
 # SIPLI
-SIPL Is Programming Language Interpreter
+The interpreter for SIPL (SIPL Is Programming Language)
