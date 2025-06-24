@@ -17,7 +17,21 @@ const string SIPL_VER = "0.2.1-pre1";
 const string SIPLI_APPENDIX = "-002";
 #pragma endregion constants
 
-
+string operator*(string a, int x){
+    string ret;
+    for(int i=0;i<x;i++){
+        ret += a;
+    }
+    return ret;
+}
+class HelpEntry{
+    public:
+    string name, desc;
+    HelpEntry(string name, string desc){
+        this->name = name;
+        this->desc = desc;
+    }
+};
 class Interpreter
 {
     unordered_map<string, string> vars;
@@ -25,6 +39,19 @@ class Interpreter
     unordered_map<string, vector<string>> arrays;
     vector<string> lines;
     bool debug_verbose;
+    const vector<HelpEntry> helpData {
+        HelpEntry("PRNT [text]","print text (supports $variables)"),
+        HelpEntry("VAR [name] = [val]","define a variable"),
+        HelpEntry("INPT [varname]","read stdin into variable"),
+        HelpEntry("GOTO [label]","jump to label"),
+        HelpEntry(":label","define a label"),
+        HelpEntry("IF var [operand] val : [action]", "run action if condition met (Supported operands: == != < > <= >= )"),
+        HelpEntry("RNG [max value] [variable name]","writes a random value between 0 and [max value] into a variable"),
+        HelpEntry("DMP","dump program data (debug only)"),
+        HelpEntry("HLP","show help message"),
+        HelpEntry("EXIT","abort program execution"),
+        HelpEntry("_comment","ignored line")
+    };
 
 private:
     static bool starts_with(const string &s, const string &prefix)
@@ -83,20 +110,21 @@ private:
         if (this->debug_verbose)
             cout << "[DEBUG] " << t << endl;
     }
+    
 
     void print_help()
     {
-        cout << "SIPL token list\n\n"
-             << "PRNT [text]                      - print text (supports $variables)\n"
-             << "VAR [name] = [val]               - define a variable\n"
-             << "INPT [varname]                   - read stdin into variable\n"
-             << "GOTO [label]                     - jump to label\n"
-             << ":label                           - define label\n"
-             << "IF var [operand] val : [action]  - run action if condition met (Supported operands: == != < > <= >=)\n"
-             << "HLP                              - show help message\n"
-             << "DMP                              - dump program data (debug only)\n"
-             << "_comment                         - ignored line\n\n"
-             << "RNG [max value] [variable name]  - writes a random value between 0 and [max value] into a variable" ;
+        int mnlen = 0;
+        for(int i = 0; i<helpData.size(); i++){
+            HelpEntry entry = helpData[i];
+            if(entry.name.size()>mnlen) mnlen = entry.name.size();
+        }
+        cout<<"SIPL Token list\n\n";
+        for(int i = 0; i<helpData.size(); i++){
+            HelpEntry entry = helpData[i];
+            cout<<entry.name<<((string)" "*(mnlen-entry.name.size()+2))<<" - "<<entry.desc<<endl;
+        }
+        
     }
 
     void error(const string &msg, const string &line = "")
@@ -290,7 +318,7 @@ public:
                 }
                 string condition = trim(rest.substr(0, colon));
                 string action = trim(rest.substr(colon + 1));
-
+                // TODO: remove and replace with expression handler
                 regex comp_regex(R"((\w+)\s*(==|!=|<|>|<=|>=)\s*(\"?.+?\"?))");
                 smatch match;
                 if (regex_match(condition, match, comp_regex))
