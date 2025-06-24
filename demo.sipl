@@ -53,6 +53,11 @@ PRNT Loop iteration $i / 5;
 IF i < 5 : GOTO loop;
 PRNT Loop ended;
 
+_ Random Number Generation (RNG) ;
+
+RNG 100 Rand;
+PRNT the value of Rand is $Rand ; 
+
 PRNT If you use -d, you will see the data dump here:;
 DMP;
 

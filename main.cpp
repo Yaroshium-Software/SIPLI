@@ -9,11 +9,13 @@
 #include <cstdlib>
 #include <cmath>
 #include <exception>
+#include <random>
 #pragma endregion includes
 using namespace std;
 #pragma region constants
 const string SIPL_VER = "0.2.1-pre1";
 #pragma endregion constants
+
 
 class Interpreter
 {
@@ -27,6 +29,12 @@ private:
     static bool starts_with(const string &s, const string &prefix)
     {
         return s.find(prefix) == 0;
+    }
+
+    int bounded_rand(int range){
+        for (int x, r;;)
+            if (x = rand(), r = x % range)
+                return r;
     }
 
     static string trim(const string &s)
@@ -84,7 +92,8 @@ private:
              << "IF var [operand] val : [action]  - run action if condition met (Supported operands: == != < > <= >=)\n"
              << "HLP                              - show help message\n"
              << "DMP                              - dump program data (debug only)\n"
-             << "_comment                         - ignored line\n\n";
+             << "_comment                         - ignored line\n\n"
+             << "RNG [max value] [variable name]  - writes a random value between 0 and [max value] into a variable" ;
     }
 
     void error(const string &msg, const string &line = "")
@@ -344,6 +353,16 @@ public:
                     }
                 }
                 cout<<"P. S. If you see no output, you might have debug mode disabled.\n";
+            }
+            else if (arg[0] == "RNG"){
+                if (arg.size() == 3){
+                string range = arg[1] ;
+                string name = arg[2] ;
+                vars[name] = normal_itoa(bounded_rand(stoi(range))) ;
+                }
+                else{
+                    error("not enough arguments for RNG");
+                }
             }
             else
             {
