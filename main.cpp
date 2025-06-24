@@ -467,7 +467,7 @@ public:
                     string max_value = arg[1];
                     if (stoi(max_value) <= 0)
                     {
-                        error("max value cannot be 0");
+                        error("Maximum value for RNG should not be less than or equal to zero.");
                     }
                     string name = arg[2];
                     vars[name] = normal_itoa(bounded_rand(stoi(max_value)));
