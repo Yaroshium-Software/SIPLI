@@ -13,45 +13,72 @@
 #pragma endregion includes
 using namespace std;
 #pragma region constants
-const string SIPL_VER = "0.2.1-pre1";
+const string SIPL_VER = "0.2.1-pre2";
 const string SIPLI_APPENDIX = "-002";
 #pragma endregion constants
 
-string operator*(string a, int x){
+string operator*(string a, int x)
+{
     string ret;
-    for(int i=0;i<x;i++){
+    for (int i = 0; i < x; i++)
+    {
         ret += a;
     }
     return ret;
 }
-class HelpEntry{
+
+class AbstractValue
+{
+private:
+    // todo!
+};
+class SiplExprType{
     public:
-    string name, desc;
-    HelpEntry(string name, string desc){
-        this->name = name;
-        this->desc = desc;
+    const static int LITERAL = 0;
+    const static int VARIABLE = 1;
+    const static int GENERIC = 2;
+};
+class SiplExpr
+{
+public:
+    int type;
+    string data;
+    AbstractValue evaluate()
+    {
+        // todo!
+        return AbstractValue();
     }
 };
+
 class Interpreter
 {
+    class HelpEntry
+    {
+    public:
+        string name, desc;
+        HelpEntry(string name, string desc)
+        {
+            this->name = name;
+            this->desc = desc;
+        }
+    };
     unordered_map<string, string> vars;
     unordered_map<string, int> labels;
     unordered_map<string, vector<string>> arrays;
     vector<string> lines;
     bool debug_verbose;
-    const vector<HelpEntry> helpData {
-        HelpEntry("PRNT [text]","print text (supports $variables)"),
-        HelpEntry("VAR [name] = [val]","define a variable"),
-        HelpEntry("INPT [varname]","read stdin into variable"),
-        HelpEntry("GOTO [label]","jump to label"),
-        HelpEntry(":label","define a label"),
+    const vector<HelpEntry> helpData{
+        HelpEntry("PRNT [text]", "print text (supports $variables)"),
+        HelpEntry("VAR [name] = [val]", "define a variable"),
+        HelpEntry("INPT [varname]", "read stdin into variable"),
+        HelpEntry("GOTO [label]", "jump to label"),
+        HelpEntry(":label", "define a label"),
         HelpEntry("IF var [operand] val : [action]", "run action if condition met (Supported operands: == != < > <= >= )"),
-        HelpEntry("RNG [max value] [variable name]","writes a random value between 0 and [max value] into a variable"),
-        HelpEntry("DMP","dump program data (debug only)"),
-        HelpEntry("HLP","show help message"),
-        HelpEntry("EXIT","abort program execution"),
-        HelpEntry("_comment","ignored line")
-    };
+        HelpEntry("RNG [max value] [variable name]", "writes a random value between 0 and [max value] into a variable"),
+        HelpEntry("DMP", "dump program data (debug only)"),
+        HelpEntry("HLP", "show help message"),
+        HelpEntry("EXIT", "abort program execution"),
+        HelpEntry("_comment", "ignored line")};
 
 private:
     static bool starts_with(const string &s, const string &prefix)
@@ -59,7 +86,8 @@ private:
         return s.find(prefix) == 0;
     }
 
-    int bounded_rand(int range){
+    int bounded_rand(int range)
+    {
         for (int x, r;;)
             if (x = rand(), r = x % range)
                 return r;
@@ -77,11 +105,11 @@ private:
         vector<string> result;
         stringstream ss(str);
         string item;
-        debug_print("Splitting str: "+str);
+        debug_print("Splitting str: " + str);
         while (getline(ss, item, delimiter))
         {
             result.push_back(item);
-            debug_print("Got tok: "+item);
+            debug_print("Got tok: " + item);
         }
         return result;
     }
@@ -110,21 +138,22 @@ private:
         if (this->debug_verbose)
             cout << "[DEBUG] " << t << endl;
     }
-    
 
     void print_help()
     {
         int mnlen = 0;
-        for(int i = 0; i<helpData.size(); i++){
+        for (int i = 0; i < helpData.size(); i++)
+        {
             HelpEntry entry = helpData[i];
-            if(entry.name.size()>mnlen) mnlen = entry.name.size();
+            if (entry.name.size() > mnlen)
+                mnlen = entry.name.size();
         }
-        cout<<"SIPL Token list\n\n";
-        for(int i = 0; i<helpData.size(); i++){
+        cout << "SIPL Token list\n\n";
+        for (int i = 0; i < helpData.size(); i++)
+        {
             HelpEntry entry = helpData[i];
-            cout<<entry.name<<((string)" "*(mnlen-entry.name.size()+2))<<" - "<<entry.desc<<endl;
+            cout << entry.name << ((string) " " * (mnlen - entry.name.size() + 2)) << " - " << entry.desc << endl;
         }
-        
     }
 
     void error(const string &msg, const string &line = "")
@@ -135,14 +164,14 @@ private:
         cerr << endl;
     }
     /*
-        '########:::::'#######:::::'########::::::'#######::    
-        ... ##..:::::'##.... ##:::: ##.... ##::::'##.... ##:    
-        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:    
+        '########:::::'#######:::::'########::::::'#######::
+        ... ##..:::::'##.... ##:::: ##.... ##::::'##.... ##:
+        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:
         ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:    Remove normal_itoa and replace with a builtin analog.
-        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:    
-        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:    
-        ::: ##:::::::. #######::::: ########:::::. #######::    
-        :::..:::::::::.......::::::........:::::::.......:::    
+        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:
+        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:
+        ::: ##:::::::. #######::::: ########:::::. #######::
+        :::..:::::::::.......::::::........:::::::.......:::
     */
     string normal_itoa(int a)
     {
@@ -168,9 +197,9 @@ public:
     {
         if (s.empty())
             return "";
-        vector<string> toks = split(s,' ');
+        vector<string> toks = split(s, ' ');
         vector<int> stack;
-        for (int ti = 0; ti< toks.size(); ti++)
+        for (int ti = 0; ti < toks.size(); ti++)
         {
             string t = toks[ti];
             if (isdigit(t[0]) || (t[0] == '-' && t.size() > 1))
@@ -179,41 +208,51 @@ public:
             }
             else if (t[0] == '$')
             {
-                if(t[1]=='('){
+                if (t[1] == '(')
+                {
                     debug_print("Found possible expression definition;");
                     int sti = ti;
                     string expr = "";
                     bool found = false;
-                    while(!found){
+                    while (!found)
+                    {
                         string tok = toks[sti];
-                        for(int ci = 0; ci<tok.size(); ci++){
+                        for (int ci = 0; ci < tok.size(); ci++)
+                        {
                             char c = tok[ci];
-                            if(sti==ti&&ci<=1) continue;
-                            if(c==')'){
+                            if (sti == ti && ci <= 1)
+                                continue;
+                            if (c == ')')
+                            {
                                 found = 1;
                                 break;
                             }
-                            else if(c==';'){
+                            else if (c == ';')
+                            {
                                 found = 0;
                                 break;
                             }
-                            else{
+                            else
+                            {
                                 expr += c;
                             }
                         }
                         expr += " ";
                         sti++;
                     }
-                    if(!found){
-                        error("Unmatched () in expr "+s);
+                    if (!found)
+                    {
+                        error("Unmatched () in expr " + s);
                         return "";
                     }
-                    else{
-                        ti = sti-1;
+                    else
+                    {
+                        ti = sti - 1;
                         return eval_expr(expr);
                     }
                 }
-                else{
+                else
+                {
                     string varname = t.substr(1);
                     if (vars.count(varname))
                     {
@@ -267,7 +306,7 @@ public:
                 debug_print("Line empty");
                 return 1;
             }
-            vector<string> arg = split(line,' ');
+            vector<string> arg = split(line, ' ');
 
             if (arg[0] == "PRNT")
             {
@@ -294,13 +333,15 @@ public:
                 debug_print("Checking label " + label);
                 if (labels.count(label))
                 {
-                    if(labels[label] == i){
+                    if (labels[label] == i)
+                    {
                         error("GOTO instruction jumped to self");
                         return 0;
                     }
-                    else{
+                    else
+                    {
                         i = labels[label] - 1;
-                        debug_print("Label found at line " + normal_itoa(i+1) + ", jumping");
+                        debug_print("Label found at line " + normal_itoa(i + 1) + ", jumping");
                     }
                 }
                 else
@@ -401,7 +442,7 @@ public:
                 debug_print("## LABELS:");
                 for (pair<string, int> label : labels)
                 {
-                    debug_print("- " + label.first + " at line " + normal_itoa(label.second+1));
+                    debug_print("- " + label.first + " at line " + normal_itoa(label.second + 1));
                 }
                 debug_print("## VARIABLES:");
                 for (pair<string, string> var : vars)
@@ -409,27 +450,32 @@ public:
                     debug_print("- " + var.first + " = " + var.second);
                 }
                 debug_print("## ARRAYS:");
-                for(pair<string,vector<string>> arr : arrays){
+                for (pair<string, vector<string>> arr : arrays)
+                {
                     debug_print("- " + arr.first);
-                    for(string v : arr.second){
-                        debug_print("| - "+v);
+                    for (string v : arr.second)
+                    {
+                        debug_print("| - " + v);
                     }
                 }
-                cout<<"P. S. If you see no output, you might have debug mode disabled.\n";
+                cout << "P. S. If you see no output, you might have debug mode disabled.\n";
             }
-            else if (arg[0] == "RNG"){
-                if (arg.size() == 3){
-                string max_value = arg[1] ;
-                if (stoi(max_value) <= 0){
-                    error("max value cannot be 0");
+            else if (arg[0] == "RNG")
+            {
+                if (arg.size() == 3)
+                {
+                    string max_value = arg[1];
+                    if (stoi(max_value) <= 0)
+                    {
+                        error("max value cannot be 0");
+                    }
+                    string name = arg[2];
+                    vars[name] = normal_itoa(bounded_rand(stoi(max_value)));
                 }
-                string name = arg[2] ;
-                vars[name] = normal_itoa(bounded_rand(stoi(max_value))) ;
-                }
-                else{
+                else
+                {
                     error("not enough arguments for RNG");
                 }
-
             }
             else
             {
@@ -455,7 +501,7 @@ public:
             if (!line.empty() && line[0] == ':')
             {
                 string label = trim(line.substr(1));
-                debug_print("Found label " + label + " at line "+normal_itoa(i+1));
+                debug_print("Found label " + label + " at line " + normal_itoa(i + 1));
                 labels[label] = i;
             }
         }
@@ -463,7 +509,7 @@ public:
         for (int i = 0; i < lines.size(); ++i)
         {
             string line = trim(lines[i]);
-            debug_print("L " + normal_itoa(i+1) + " / " + normal_itoa(lines.size()) + " : " + line);
+            debug_print("L " + normal_itoa(i + 1) + " / " + normal_itoa(lines.size()) + " : " + line);
             int res = exec_line(line, i);
             if (res == 0)
                 break;
@@ -521,8 +567,8 @@ int main(int argc, char *argv[])
         }
         stringstream buffer;
         buffer << file.rdbuf();
-        Interpreter evaluator(debug);
-        evaluator.run(buffer.str());
+        Interpreter x(debug);
+        x.run(buffer.str());
     }
     else
     {
