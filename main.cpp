@@ -419,13 +419,17 @@ public:
             }
             else if (arg[0] == "RNG"){
                 if (arg.size() == 3){
-                string range = arg[1] ;
+                string max_value = arg[1] ;
+                if (stoi(max_value) <= 0){
+                    error("max value cannot be 0");
+                }
                 string name = arg[2] ;
-                vars[name] = normal_itoa(bounded_rand(stoi(range))) ;
+                vars[name] = normal_itoa(bounded_rand(stoi(max_value))) ;
                 }
                 else{
                     error("not enough arguments for RNG");
                 }
+
             }
             else
             {
