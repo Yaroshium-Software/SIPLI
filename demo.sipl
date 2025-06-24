@@ -1,0 +1,64 @@
+_ SIPL demo file for SIPL v0.2.1 (SIPLI 0.2.1-001);
+_ This demonstrates the basic language syntax.;
+
+_ Variable definition;
+_VAR noquotes = "ABC"; _ BUG!;
+VAR first = 64;
+VAR 2nd = 42;
+
+VAR complex_math = 1 2 +; _ Yes, it looks ugly, but you can read it as (1 + 2);
+
+_ Basic IO;
+_PRNT noquotes = $noquotes;
+PRNT 12345;
+PRNT first var is $first;
+PRNT second var is $2nd;
+PRNT Complex math result: $complex_math;
+
+PRNT M
+U
+L
+T
+I
+L
+I
+N
+E;
+
+PRNT Enter your name:;
+INPT name;
+
+PRNT Your name is $name;
+
+_ Labels and GOTOs;
+
+GOTO label2;
+
+:label1;
+PRNT This is label 1 and it will NOT be executed!;
+:label2;
+PRNT This is label 2!;
+
+_ Conditions (IF);
+
+IF name == "Bob": PRNT Your name is Bob!;
+IF name != "Bob": PRNT Your name is not Bob!;
+
+_ Label loops;
+
+VAR i = 0; _ use a counter so the loop will be finite;
+:loop;
+VAR i = $i 1 +;
+PRNT Loop iteration $i / 5;
+IF i < 5 : GOTO loop;
+PRNT Loop ended;
+
+PRNT If you use -d, you will see the data dump here:;
+DMP;
+
+PRNT This is the end of the demo!;
+EXIT;
+_ These instructions will never be reached normally!;
+:loop2;
+PRNT otd when??? obsolete teh doawg no release til 2029 probably;
+GOTO loop2;
