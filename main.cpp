@@ -14,6 +14,7 @@
 using namespace std;
 #pragma region constants
 const string SIPL_VER = "0.2.1-pre1";
+const string SIPLI_APPENDIX = "-002";
 #pragma endregion constants
 
 
@@ -44,14 +45,16 @@ private:
         return (start == string::npos) ? "" : s.substr(start, end - start + 1);
     }
 
-    static vector<string> split(const string &str, char delimiter)
+    vector<string> split(const string &str, char delimiter)
     {
         vector<string> result;
         stringstream ss(str);
         string item;
+        debug_print("Splitting str: "+str);
         while (getline(ss, item, delimiter))
         {
             result.push_back(item);
+            debug_print("Got tok: "+item);
         }
         return result;
     }
@@ -137,29 +140,61 @@ public:
     {
         if (s.empty())
             return "";
-        stringstream ss(s);
-        vector<string> toks;
-        string tok;
-        while (ss >> tok)
-            toks.push_back(tok);
-
+        vector<string> toks = split(s,' ');
         vector<int> stack;
-        for (const string &t : toks)
+        for (int ti = 0; ti< toks.size(); ti++)
         {
+            string t = toks[ti];
             if (isdigit(t[0]) || (t[0] == '-' && t.size() > 1))
             {
                 stack.push_back(stoi(t));
             }
             else if (t[0] == '$')
             {
-                string varname = t.substr(1);
-                if (vars.count(varname))
-                {
-                    stack.push_back(stoi(vars[varname]));
+                if(t[1]=='('){
+                    debug_print("Found possible expression definition;");
+                    int sti = ti;
+                    string expr = "";
+                    bool found = false;
+                    while(!found){
+                        string tok = toks[sti];
+                        for(int ci = 0; ci<tok.size(); ci++){
+                            char c = tok[ci];
+                            if(sti==ti&&ci<=1) continue;
+                            if(c==')'){
+                                found = 1;
+                                break;
+                            }
+                            else if(c==';'){
+                                found = 0;
+                                break;
+                            }
+                            else{
+                                expr += c;
+                            }
+                        }
+                        expr += " ";
+                        sti++;
+                    }
+                    if(!found){
+                        error("Unmatched () in expr "+s);
+                        return "";
+                    }
+                    else{
+                        ti = sti-1;
+                        return eval_expr(expr);
+                    }
                 }
-                else
-                {
-                    throw runtime_error("Undefined variable: " + varname);
+                else{
+                    string varname = t.substr(1);
+                    if (vars.count(varname))
+                    {
+                        stack.push_back(stoi(vars[varname]));
+                    }
+                    else
+                    {
+                        throw runtime_error("Undefined variable: " + varname);
+                    }
                 }
             }
             else if (vars.count(t))
@@ -459,14 +494,14 @@ int main(int argc, char *argv[])
     }
     else
     {
-        cout << "SIPLI version " << SIPL_VER << "\nUse HLP for help or pass -h argument for parameter list.\n";
-        Interpreter evaluator(debug);
+        cout << "SIPLI version " << SIPL_VER << SIPLI_APPENDIX << "\nUse HLP for help or pass -h argument for parameter list.\n";
+        Interpreter x(debug);
         while (1)
         {
             cout << ">>> ";
             string q;
             getline(cin, q);
-            if (!evaluator.run(q))
+            if (!x.run(q))
             {
                 break;
             }
