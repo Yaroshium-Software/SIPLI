@@ -8,6 +8,7 @@
 #include <string>
 #include <cstdlib>
 #include <cmath>
+#include <ctime>
 #include <exception>
 #include <random>
 #pragma endregion includes
@@ -493,7 +494,14 @@ public:
     bool run(const string &program)
     {
         debug_print("Running in debug mode");
-        lines = split(program, ';');
+        lines = vector<string>();
+        labels = unordered_map<string,int>();
+        vars = unordered_map<string,string>();
+        for(string line : split(program, ';')){
+            if(line.empty()) continue;
+            if(line[0]=='_') continue;
+            lines.push_back(line);
+        }
 
         for (int i = 0; i < lines.size(); ++i)
         {
@@ -522,6 +530,7 @@ public:
 
 int main(int argc, char *argv[])
 {
+    srand(time(0));
     string fpath;
     bool debug = 0;
     for (int argn = 1; argn < argc; argn++)
