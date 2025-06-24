@@ -4,6 +4,7 @@
 
 # generic code cleanup todos
 - Replace normal_itoa with a builtin analog
+- Make expression parsing standartized
 
 # bug todos
 - fix variables not supporting strings in definitions
