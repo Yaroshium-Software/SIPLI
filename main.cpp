@@ -33,8 +33,9 @@ class AbstractValue
 private:
     // todo!
 };
-class SiplExprType{
-    public:
+class SiplExprType
+{
+public:
     const static int LITERAL = 0;
     const static int VARIABLE = 1;
     const static int GENERIC = 2;
@@ -75,7 +76,7 @@ class Interpreter
         HelpEntry("GOTO [label]", "jump to label"),
         HelpEntry(":label", "define a label"),
         HelpEntry("IF var [operand] val : [action]", "run action if condition met (Supported operands: == != < > <= >= )"),
-        HelpEntry("RNG [max value] [variable name]", "writes a random value between 0 and [max value] into a variable"),
+        HelpEntry("RNG [max] [var] or RNG [min] [max] [var]", "writes a random value between [min] (default 0, inclusive) and [max] (exclusive!) into a variable"),
         HelpEntry("DMP", "dump program data (debug only)"),
         HelpEntry("HLP", "show help message"),
         HelpEntry("EXIT", "abort program execution"),
@@ -87,11 +88,9 @@ private:
         return s.find(prefix) == 0;
     }
 
-    int bounded_rand(int range)
+    int bounded_rand(int min, int max)
     {
-        for (int x, r;;)
-            if (x = rand(), r = x % range)
-                return r;
+        return min + (rand() % (max - min));
     }
 
     static string trim(const string &s)
@@ -163,30 +162,6 @@ private:
         if (!line.empty())
             cerr << " | Line: \"" << line << "\"";
         cerr << endl;
-    }
-    /*
-        '########:::::'#######:::::'########::::::'#######::
-        ... ##..:::::'##.... ##:::: ##.... ##::::'##.... ##:
-        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:
-        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:    Remove normal_itoa and replace with a builtin analog.
-        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:
-        ::: ##::::::: ##:::: ##:::: ##:::: ##:::: ##:::: ##:
-        ::: ##:::::::. #######::::: ########:::::. #######::
-        :::..:::::::::.......::::::........:::::::.......:::
-    */
-    string normal_itoa(int a)
-    {
-        string ret = "";
-        if (a == 0)
-            return "0";
-        while (a > 0)
-        {
-            int c = a % 10;
-            char cc = "0123456789"[c];
-            ret = cc + ret;
-            a = a / 10;
-        }
-        return ret;
     }
 
 public:
@@ -342,7 +317,7 @@ public:
                     else
                     {
                         i = labels[label] - 1;
-                        debug_print("Label found at line " + normal_itoa(i + 1) + ", jumping");
+                        debug_print("Label found at line " + to_string(i + 1) + ", jumping");
                     }
                 }
                 else
@@ -369,7 +344,7 @@ public:
                     for (int i = 0; i < match.length(); i++)
                     {
                         string data = match[i];
-                        debug_print("[" + normal_itoa(i) + "] " + data);
+                        debug_print("[" + to_string(i) + "] " + data);
                     }
                     debug_print("END IF REGEX DUMP");
                     string var = match[1];
@@ -443,7 +418,7 @@ public:
                 debug_print("## LABELS:");
                 for (pair<string, int> label : labels)
                 {
-                    debug_print("- " + label.first + " at line " + normal_itoa(label.second + 1));
+                    debug_print("- " + label.first + " at line " + to_string(label.second + 1));
                 }
                 debug_print("## VARIABLES:");
                 for (pair<string, string> var : vars)
@@ -463,19 +438,37 @@ public:
             }
             else if (arg[0] == "RNG")
             {
+                int min_value = 0;
+                int max_value = 0;
+                string var_name = "";
+                bool failed = false;
                 if (arg.size() == 3)
                 {
-                    string max_value = arg[1];
-                    if (stoi(max_value) <= 0)
-                    {
-                        error("Maximum value for RNG should not be less than or equal to zero.");
-                    }
-                    string name = arg[2];
-                    vars[name] = normal_itoa(bounded_rand(stoi(max_value)));
+                    max_value = stoi(arg[1]);
+                    var_name = arg[2];
+                }
+                else if (arg.size() == 4)
+                {
+                    min_value = stoi(arg[1]);
+                    max_value = stoi(arg[2]);
+                    var_name = arg[3];
                 }
                 else
                 {
-                    error("not enough arguments for RNG");
+                    error("Not enough or too many arguments for RNG");
+                    failed = true;
+                }
+                if (max_value <= 0)
+                {
+                    error("Maximum value for RNG should not be less than or equal to zero.");
+                    failed = true;
+                }
+                if(min_value >= max_value){
+                    error("The minimum value for RNG could not be larger than the maximum value.");
+                }
+                if (!failed)
+                {
+                    vars[var_name] = to_string(bounded_rand(min_value,max_value));
                 }
             }
             else
@@ -495,11 +488,14 @@ public:
     {
         debug_print("Running in debug mode");
         lines = vector<string>();
-        labels = unordered_map<string,int>();
-        vars = unordered_map<string,string>();
-        for(string line : split(program, ';')){
-            if(line.empty()) continue;
-            if(line[0]=='_') continue;
+        labels = unordered_map<string, int>();
+        vars = unordered_map<string, string>();
+        for (string line : split(program, ';'))
+        {
+            if (line.empty())
+                continue;
+            if (line[0] == '_')
+                continue;
             lines.push_back(line);
         }
 
@@ -509,7 +505,7 @@ public:
             if (!line.empty() && line[0] == ':')
             {
                 string label = trim(line.substr(1));
-                debug_print("Found label " + label + " at line " + normal_itoa(i + 1));
+                debug_print("Found label " + label + " at line " + to_string(i + 1));
                 labels[label] = i;
             }
         }
@@ -517,7 +513,7 @@ public:
         for (int i = 0; i < lines.size(); ++i)
         {
             string line = trim(lines[i]);
-            debug_print("L " + normal_itoa(i + 1) + " / " + normal_itoa(lines.size()) + " : " + line);
+            debug_print("L " + to_string(i + 1) + " / " + to_string(lines.size()) + " : " + line);
             int res = exec_line(line, i);
             if (res == 0)
                 break;
