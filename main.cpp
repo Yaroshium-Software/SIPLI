@@ -36,9 +36,6 @@ private:
 class SiplExprType
 {
 public:
-class SiplExprType
-{
-public:
     const static int LITERAL = 0;
     const static int VARIABLE = 1;
     const static int GENERIC = 2;
@@ -80,7 +77,6 @@ class Interpreter
         HelpEntry(":label", "define a label"),
         HelpEntry("IF var [operand] val : [action]", "run action if condition met (Supported operands: == != < > <= >= )"),
         HelpEntry("RNG [max] [var] or RNG [min] [max] [var]", "writes a random value between [min] (default 0, inclusive) and [max] (exclusive!) into a variable"),
-        HelpEntry("RNG [max] [var] or RNG [min] [max] [var]", "writes a random value between [min] (default 0, inclusive) and [max] (exclusive!) into a variable"),
         HelpEntry("DMP", "dump program data (debug only)"),
         HelpEntry("HLP", "show help message"),
         HelpEntry("EXIT", "abort program execution"),
@@ -93,9 +89,7 @@ private:
     }
 
     int bounded_rand(int min, int max)
-    int bounded_rand(int min, int max)
     {
-        return min + (rand() % (max - min));
         return min + (rand() % (max - min));
     }
 
@@ -336,7 +330,6 @@ public:
                     {
                         i = labels[label] - 1;
                         debug_print("Label found at line " + to_string(i + 1) + ", jumping");
-                        debug_print("Label found at line " + to_string(i + 1) + ", jumping");
                     }
                 }
                 else
@@ -363,7 +356,6 @@ public:
                     for (int i = 0; i < match.length(); i++)
                     {
                         string data = match[i];
-                        debug_print("[" + to_string(i) + "] " + data);
                         debug_print("[" + to_string(i) + "] " + data);
                     }
                     debug_print("END IF REGEX DUMP");
@@ -439,7 +431,6 @@ public:
                 for (pair<string, int> label : labels)
                 {
                     debug_print("- " + label.first + " at line " + to_string(label.second + 1));
-                    debug_print("- " + label.first + " at line " + to_string(label.second + 1));
                 }
                 debug_print("## VARIABLES:");
                 for (pair<string, string> var : vars)
@@ -463,20 +454,8 @@ public:
                 int max_value = 0;
                 string var_name = "";
                 bool failed = false;
-                int min_value = 0;
-                int max_value = 0;
-                string var_name = "";
-                bool failed = false;
                 if (arg.size() == 3)
                 {
-                    max_value = stoi(arg[1]);
-                    var_name = arg[2];
-                }
-                else if (arg.size() == 4)
-                {
-                    min_value = stoi(arg[1]);
-                    max_value = stoi(arg[2]);
-                    var_name = arg[3];
                     max_value = stoi(arg[1]);
                     var_name = arg[2];
                 }
@@ -488,20 +467,6 @@ public:
                 }
                 else
                 {
-                    error("Not enough or too many arguments for RNG");
-                    failed = true;
-                }
-                if (max_value <= 0)
-                {
-                    error("Maximum value for RNG should not be less than or equal to zero.");
-                    failed = true;
-                }
-                if(min_value >= max_value){
-                    error("The minimum value for RNG could not be larger than the maximum value.");
-                }
-                if (!failed)
-                {
-                    vars[var_name] = to_string(bounded_rand(min_value,max_value));
                     error("Not enough or too many arguments for RNG");
                     failed = true;
                 }
@@ -546,7 +511,6 @@ public:
             {
                 string label = trim(line.substr(1));
                 debug_print("Found label " + label + " at line " + to_string(i + 1));
-                debug_print("Found label " + label + " at line " + to_string(i + 1));
                 labels[label] = i;
             }
         }
@@ -554,7 +518,6 @@ public:
         for (int i = 0; i < lines.size(); ++i)
         {
             string line = trim(lines[i]);
-            debug_print("L " + to_string(i + 1) + " / " + to_string(lines.size()) + " : " + line);
             debug_print("L " + to_string(i + 1) + " / " + to_string(lines.size()) + " : " + line);
             int res = exec_line(line, i);
             if (res == 0)
