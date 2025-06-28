@@ -65,7 +65,7 @@ class Interpreter
         }
     };
     map<string, string> vars;
-    map<string, int> labels;
+    map<int, string> labels;
     map<string, vector<string>> arrays;
     vector<string> lines;
     bool debug_verbose;
@@ -180,6 +180,14 @@ public:
             lines.push_back(line);
         }
         return ret;
+    }
+    int find_label(string name){
+        debug_print("Checking label " + name);
+        for(pair<int,string> label:labels){
+            if(label.second==name) return label.first;
+        }
+        debug_print("Label not found");
+        return -1;
     }
     string eval_expr(const string &s)
     {
@@ -318,23 +326,13 @@ public:
             else if (arg[0] == "GOTO")
             {
                 string label = arg[1];
-                debug_print("Checking label " + label);
-                if (labels.count(label))
-                {
-                    if (labels[label] == i)
-                    {
-                        error("GOTO instruction jumped to self");
-                        return 0;
-                    }
-                    else
-                    {
-                        i = labels[label] - 1;
-                        debug_print("Label found at line " + to_string(i + 1) + ", jumping");
-                    }
-                }
-                else
-                {
+                int labelpos = find_label(label);
+                if(labelpos==-1){
                     error("Label not found: " + label, line);
+                }
+                else{
+                    debug_print("Label found at line " + to_string(i + 1) + ", jumping");
+                    i = labelpos - 1;
                 }
             }
             else if (arg[0] == "IF")
@@ -428,9 +426,9 @@ public:
             {
                 debug_print("PROGRAM DATA DUMP:");
                 debug_print("## LABELS:");
-                for (pair<string, int> label : labels)
+                for (pair<int, string> label : labels)
                 {
-                    debug_print("- " + label.first + " at line " + to_string(label.second + 1));
+                    debug_print("- " + label.second + " at line " + to_string(label.first + 1));
                 }
                 debug_print("## VARIABLES:");
                 for (pair<string, string> var : vars)
@@ -500,7 +498,7 @@ public:
     {
         debug_print("Running in debug mode");
         lines = vector<string>();
-        labels = map<string, int>();
+        labels = map<int,string>();
         vars = map<string, string>();
         addLines(program);
 
@@ -511,7 +509,7 @@ public:
             {
                 string label = trim(line.substr(1));
                 debug_print("Found label " + label + " at line " + to_string(i + 1));
-                labels[label] = i;
+                labels[i] = label;
             }
         }
 
