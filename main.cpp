@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <regex>
 #include <string>
@@ -64,9 +64,9 @@ class Interpreter
             this->desc = desc;
         }
     };
-    unordered_map<string, string> vars;
-    unordered_map<string, int> labels;
-    unordered_map<string, vector<string>> arrays;
+    map<string, string> vars;
+    map<string, int> labels;
+    map<string, vector<string>> arrays;
     vector<string> lines;
     bool debug_verbose;
     const vector<HelpEntry> helpData{
@@ -500,8 +500,8 @@ public:
     {
         debug_print("Running in debug mode");
         lines = vector<string>();
-        labels = unordered_map<string, int>();
-        vars = unordered_map<string, string>();
+        labels = map<string, int>();
+        vars = map<string, string>();
         addLines(program);
 
         for (int i = 0; i < lines.size(); ++i)
