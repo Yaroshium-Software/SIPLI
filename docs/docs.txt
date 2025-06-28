@@ -31,7 +31,7 @@ _ to print variables: ;
 PRNT $variable_name ;
 _ to print a variable you need to place $ before the name of it ;
 
-INPT is a built-in function for receiving text, numbers, and variables.
+INPT is a built-in function for receiving text and numbers.
 Example:
 
 PRNT type something: ;
