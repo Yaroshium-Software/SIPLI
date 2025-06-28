@@ -1,0 +1,80 @@
+SIPL Is Programming Language 0.2.1-pre2
+
+                Variables:
+
+VAR Variables can only be numbers (for now!)
+
+Example:
+VAR x = 1 ;
+_ here 'x' is the name of the variable , and 1 is the value of the variable. ;
+
+
+RNG Variables also can only be numbers, but unlike VAR Variables , the value of RNG Variable is random. 
+
+Example:
+
+RNG 10 100 x ;
+_ here 10 is the lowest possible value , and 100 is the biggest possible value , 'x' is the name of the variable ;
+
+(INPT is also kind of variable-like but its in I/O section)
+
+                I/O(Input/Output):
+
+PRNT is a built-in function to print out strings , numbers and variable.
+Example:
+
+_ to print text:     ;
+PRNT some text ;
+_ to print numbers:  ;
+PRNT 123123 ;
+_ to print variables: ;
+PRNT $variable_name ;
+_ to print a variable you need to place $ before the name of it ;
+
+INPT is a built-in function for receiving text, numbers, and variables.
+Example:
+
+PRNT type something: ;
+INPT x ;
+_ here x is the name of the variable we want to pass the text in ;
+
+                Labels and GOTOs :
+
+Label is a point the code , to which you can jump by using GOTO.
+Example:
+
+VAR x = 0;
+:start ; _ start is the name of the label ;
+VAR x = $x 1 + ; _ The variable x , is 1 plus itself ;
+PRNT $x ; _ Printing x out ;
+GOTO start ; _ jumping to start ;
+
+                Conditions (IF):
+IF is a simple logical construction , which uses logical operators to compare a variable to a value.
+Example:
+
+VAR x = 1 ; _ declaring a variable ;
+IF x == 1 : PRNT x is one! ;
+_ x is the name of the variable we want to compare , 1 is the value we compare it to , everyting after ':' is the command we want to run. ;
+IF x > 0 : PRNT x is bigger than 0 ;
+_ the same here ; 
+
+                Miscellaneous built-in functions:
+DMP is a function to Dump out the memory pf the program , requires -d to be executed.
+Example : 
+
+VAR x = 1 ;
+VAR z = 2 ;
+INPT input1 ;
+RNG 10 100 random_number ;
+DMP ; _ (requires -d to be executed!) ;
+
+EXIT is a function to stop the execution of the program.
+Example :
+
+VAR x = 0;
+:start ;
+PRNT $x ;
+VAR x = $x 1 + ;
+IF x == 6: EXIT ; _ if x is 6 exit the program . ;
+GOTO start ;

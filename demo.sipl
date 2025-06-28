@@ -3,8 +3,10 @@ _ This demonstrates the basic language syntax.;
 
 _ Variable definition;
 _VAR noquotes = "ABC"; _ BUG!;
+
 VAR first = 64;
 VAR 2nd = 42;
+RNG 100 Rand;
 
 VAR complex_math = 1 2 +; _ Yes, it looks ugly, but you can read it as (1 + 2);
 
@@ -55,8 +57,8 @@ PRNT Loop ended;
 
 _ Random Number Generation (RNG) ;
 
-RNG 100 Rand;
-PRNT the value of Rand is $Rand ; 
+
+PRNT the Random number between 0 and 100:$Rand ; 
 
 PRNT If you use -d, you will see the data dump here:;
 DMP;
