@@ -310,18 +310,18 @@ public:
             }
             else if (arg[0] == "VAR")
             {
-                string rest = trim(line.substr(3));
-                size_t eq = rest.find('=');
-                if (eq != string::npos)
-                {
-                    string name = trim(rest.substr(0, eq));
-                    string expr = trim(rest.substr(eq + 1));
-                    vars[name] = eval_expr(expr);
+                string type = arg[1] ;
+                if (type == "int"){
+                    int value = stoi(arg[3]);
+                    vars[arg[2]] = to_string(value);
+                }else if (type == "str"){
+                    string value = arg[3] ;
+                    vars[arg[2]] = value;
+                }else{
+                    error("Invalid type");
                 }
-                else
-                {
-                    error("Invalid VAR syntax", line);
-                }
+                    
+                
             }
             else if (arg[0] == "GOTO")
             {
