@@ -14,8 +14,8 @@
 #pragma endregion includes
 using namespace std;
 #pragma region constants
-const string SIPL_VER = "0.2.1-pre2";
-const string SIPLI_APPENDIX = "-002";
+const string SIPL_VER = "0.2.1-pre3";
+const string SIPLI_APPENDIX = "-003";
 #pragma endregion constants
 
 string operator*(string a, int x)
@@ -27,30 +27,79 @@ string operator*(string a, int x)
     }
     return ret;
 }
-
+enum AbstractType{
+    VOID,
+    INTEGER,
+    STRING
+};
 class AbstractValue
 {
 private:
-    // todo!
-};
-class SiplExprType
-{
+    AbstractType type;
+    string value;
 public:
-    const static int LITERAL = 0;
-    const static int VARIABLE = 1;
-    const static int GENERIC = 2;
+    AbstractValue(){
+        this->type = VOID;
+    }
+    AbstractValue(int x){
+        this->value = to_string(x);
+        this->type = INTEGER;
+    }
+    AbstractValue(string x){
+        this->value = x;
+        this->type = STRING;
+    }
+    int getAsInt(){
+        if(this->type==INTEGER){
+            return stoi(value);
+        }
+        else{
+            throw runtime_error("Invalid type getter");
+        }
+    }
+    string getAsString(){
+        return value;
+    }
+    AbstractType getType(){
+        return type;
+    }
+};
+enum SiplExprType{
+    LITERAL,
+    VARIABLE,
+    GENERIC
 };
 class SiplExpr
 {
 public:
-    int type;
+    SiplExprType type;
     string data;
-    AbstractValue evaluate()
+    AbstractValue evaluate(map<string,AbstractValue> &vars)
     {
-        // todo!
-        return AbstractValue();
+        AbstractValue ret = AbstractValue();
+        switch(type){
+            case LITERAL:
+            ret = AbstractValue(data);
+            break;
+            case VARIABLE:
+            if(vars.count(data)){
+                ret = vars[data];
+            }
+            else{
+                throw runtime_error("Invalid variable name!");
+            }
+            break;
+            case GENERIC:
+            throw runtime_error("Not implemented");
+            break;
+            default:
+            throw runtime_error("Invalid expression type!");
+        }
+
+        return ret;
     }
 };
+
 
 class Interpreter
 {
@@ -64,7 +113,7 @@ class Interpreter
             this->desc = desc;
         }
     };
-    map<string, string> vars;
+    map<string, AbstractValue> vars;
     map<int, string> labels;
     map<string, vector<string>> arrays;
     vector<string> lines;
@@ -87,19 +136,16 @@ private:
     {
         return s.find(prefix) == 0;
     }
-
     int bounded_rand(int min, int max)
     {
         return min + (rand() % (max - min));
     }
-
     static string trim(const string &s)
     {
         size_t start = s.find_first_not_of(" \t\n\r");
         size_t end = s.find_last_not_of(" \t\n\r");
         return (start == string::npos) ? "" : s.substr(start, end - start + 1);
     }
-
     vector<string> split(const string &str, char delimiter)
     {
         vector<string> result;
@@ -113,7 +159,6 @@ private:
         }
         return result;
     }
-
     void handle_echo(const string &text)
     {
         regex var_pattern(R"(\$(\w+))");
@@ -126,7 +171,7 @@ private:
         {
             result += text.substr(last_pos, it->position() - last_pos);
             string varname = (*it)[1];
-            result += vars.count(varname) ? vars[varname] : "$" + varname;
+            result += vars.count(varname) ? vars[varname].getAsString() : "$" + varname;
             last_pos = it->position() + it->length();
             ++it;
         }
@@ -138,7 +183,6 @@ private:
         if (this->debug_verbose)
             cout << "[DEBUG] " << t << endl;
     }
-
     void print_help()
     {
         int mnlen = 0;
@@ -155,7 +199,6 @@ private:
             cout << entry.name << ((string) " " * (mnlen - entry.name.size() + 2)) << " - " << entry.desc << endl;
         }
     }
-
     void error(const string &msg, const string &line = "")
     {
         cerr << "[ERROR] " << msg;
@@ -252,7 +295,7 @@ public:
                     string varname = t.substr(1);
                     if (vars.count(varname))
                     {
-                        stack.push_back(stoi(vars[varname]));
+                        stack.push_back(stoi(vars[varname].getAsString()));
                     }
                     else
                     {
@@ -262,7 +305,7 @@ public:
             }
             else if (vars.count(t))
             {
-                stack.push_back(stoi(vars[t]));
+                stack.push_back(stoi(vars[t].getAsString()));
             }
             else if (t == "+" || t == "-" || t == "*" || t == "/" || t == "%" || t == "**")
             {
@@ -311,10 +354,10 @@ public:
             else if (arg[0] == "VAR")
             {
                 string type = arg[1] ;
-                if (type == "int"){
+                if (type == "INT"){
                     int value = stoi(arg[3]);
-                    vars[arg[2]] = to_string(value);
-                }else if (type == "str"){
+                    vars[arg[2]] = value;
+                }else if (type == "STR"){
                     string value = arg[3] ;
                     vars[arg[2]] = value;
                 }else{
@@ -361,7 +404,7 @@ public:
                     string op = match[2];
                     string val = match[3];
 
-                    string var_val = vars.count(var) ? vars[var] : "";
+                    string var_val = vars.count(var) ? vars[var].getAsString() : "";
                     bool cond_met = false;
 
                     if (val.front() == '"' && val.back() == '"')
@@ -431,9 +474,9 @@ public:
                     debug_print("- " + label.second + " at line " + to_string(label.first + 1));
                 }
                 debug_print("## VARIABLES:");
-                for (pair<string, string> var : vars)
+                for (pair<string, AbstractValue> var : vars)
                 {
-                    debug_print("- " + var.first + " = " + var.second);
+                    debug_print("- " + var.first + " = " + var.second.getAsString());
                 }
                 debug_print("## ARRAYS:");
                 for (pair<string, vector<string>> arr : arrays)
@@ -499,7 +542,7 @@ public:
         debug_print("Running in debug mode");
         lines = vector<string>();
         labels = map<int,string>();
-        vars = map<string, string>();
+        vars = map<string, AbstractValue>();
         addLines(program);
 
         for (int i = 0; i < lines.size(); ++i)
