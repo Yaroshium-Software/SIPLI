@@ -2,14 +2,16 @@ SIPL Is Programming Language 0.2.1-pre2
 
                 Variables:
 
-VAR Variables can only be numbers (for now!)
 
 Example:
-VAR x = 1 ;
-_ here 'x' is the name of the variable , and 1 is the value of the variable. ;
+VAR INT x = 123;_ here int is the type , 'x' is the name of the variable , and 1 is the value of the variable;
+VAR INT shit = 1+1 ; _ you can also do mathematical expression ;
+
+VAR STR y = Some fucking text;
+_ str is string , int is integer ;
 
 
-RNG Variables also can only be numbers, but unlike VAR Variables , the value of RNG Variable is random. 
+RNG Variables can only be numbers, but unlike VAR Variables , the value of RNG Variable is random. 
 
 Example:
 

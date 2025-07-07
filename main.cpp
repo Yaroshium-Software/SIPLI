@@ -353,18 +353,26 @@ public:
             }
             else if (arg[0] == "VAR")
             {
-                string type = arg[1] ;
-                if (type == "INT"){
-                    int value = stoi(arg[3]);
-                    vars[arg[2]] = value;
-                }else if (type == "STR"){
-                    string value = arg[3] ;
-                    vars[arg[2]] = value;
-                }else{
-                    error("Invalid type");
+                if (arg.size() < 5 || arg[3] != "="){
+                    error("Invalid VAR syntax", line);
                 }
-                    
-                
+                string type = arg[1];
+                string name = arg[2];
+                string val = trim(line.substr(line.find('=') + 1));
+
+                if (type == "INT"){
+                    string evaluated = eval_expr(val);
+                    vars[name] = evaluated;
+                }
+                else if (type == "STR"){
+                    if (val.front() == '"' && val.back() == '"')
+                    val = val.substr(1, val.size() - 2);
+                    vars[name] = val;
+                }
+                else{
+                    error("Invalid type", line);
+                    return 0;
+                }
             }
             else if (arg[0] == "GOTO")
             {
