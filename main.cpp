@@ -232,11 +232,36 @@ public:
         debug_print("Label not found");
         return -1;
     }
+    string preprocess_expr(const string& expr) {
+        string result;
+        for (size_t i = 0; i < expr.size(); ++i) {
+            if (expr[i] == '$') {
+                i++; // move past $
+                string varname;
+                // Grab the variable name and shit
+                while (i < expr.size() && (isalnum(expr[i]) || expr[i] == '_')) {
+                    varname += expr[i];
+                    ++i;
+                }
+                --i; // step back one cuz for loop will increment again
+                if (vars.count(varname)) {
+                    result += vars[varname].getAsString();
+                }else {
+                    throw runtime_error("Undefined variable: " + varname);
+                }
+            }else {
+                result += expr[i];
+            }
+        }
+        return result;
+    }
+
     string eval_expr(const string &s)
     {
         if (s.empty())
             return "";
-        vector<string> toks = split(s, ' ');
+        string replaced = preprocess_expr(s);
+        vector<string> toks = split(replaced, ' ');
         vector<int> stack;
         for (int ti = 0; ti < toks.size(); ti++)
         {
