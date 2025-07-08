@@ -1,6 +1,5 @@
 # SIPL TODOS
 - Arrays
-- Data types
 
 # generic code cleanup todos
 - Make expression parsing standartized

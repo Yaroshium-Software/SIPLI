@@ -120,7 +120,7 @@ class Interpreter
     bool debug_verbose;
     const vector<HelpEntry> helpData{
         HelpEntry("PRNT [text]", "print text (supports $variables)"),
-        HelpEntry("VAR [name] = [val]", "define a variable"),
+        HelpEntry("VAR [INT|STR] [name] = [val]", "define a variable"),
         HelpEntry("INPT [varname]", "read stdin into variable"),
         HelpEntry("GOTO [label]", "jump to label"),
         HelpEntry(":label", "define a label"),
@@ -236,18 +236,17 @@ public:
         string result;
         for (size_t i = 0; i < expr.size(); ++i) {
             if (expr[i] == '$') {
-                i++; // move past $
+                i++;
                 string varname;
-                // Grab the variable name and shit
                 while (i < expr.size() && (isalnum(expr[i]) || expr[i] == '_')) {
                     varname += expr[i];
                     ++i;
                 }
-                --i; // step back one cuz for loop will increment again
+                --i;
                 if (vars.count(varname)) {
                     result += vars[varname].getAsString();
                 }else {
-                    throw runtime_error("Undefined variable: " + varname);
+                    error("Undefined variable: " + varname);
                 }
             }else {
                 result += expr[i];

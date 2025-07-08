@@ -7,7 +7,7 @@ Example:
 VAR INT x = 123;_ here int is the type , 'x' is the name of the variable , and 1 is the value of the variable;
 VAR INT shit = 1+1 ; _ you can also do mathematical expression ;
 
-VAR STR y = Some fucking text;
+VAR STR y = "Some fucking text";
 _ str is string , int is integer ;
 
 
