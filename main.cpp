@@ -14,7 +14,7 @@
 #pragma endregion includes
 using namespace std;
 #pragma region constants
-const string SIPL_VER = "0.2.1-pre3";
+const string SIPL_VER = "0.2.1-pre4";
 const string SIPLI_APPENDIX = "-003";
 #pragma endregion constants
 
