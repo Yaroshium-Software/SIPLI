@@ -15,7 +15,7 @@
 using namespace std;
 #pragma region constants
 const string SIPL_VER = "0.2.1-pre4";
-const string SIPLI_APPENDIX = "-003";
+const string SIPLI_APPENDIX = "-004";
 #pragma endregion constants
 
 string operator*(string a, int x)
