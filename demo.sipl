@@ -4,11 +4,11 @@ _ This demonstrates the basic language syntax.;
 _ Variable definition;
 _VAR noquotes = "ABC"; _ BUG!;
 
-VAR first = 64;
-VAR 2nd = 42;
+VAR STR first = 64;
+VAR STR 2nd = 42;
 RNG 100 Rand;
 
-VAR complex_math = 1 2 +; _ Yes, it looks ugly, but you can read it as (1 + 2);
+VAR INT complex_math = 1 2 +; _ Yes, it looks ugly, but you can read it as (1 + 2);
 
 _ Basic IO;
 _PRNT noquotes = $noquotes;
@@ -48,9 +48,9 @@ IF name != "Bob": PRNT Your name is not Bob!;
 
 _ Label loops;
 
-VAR i = 0; _ use a counter so the loop will be finite;
+VAR INT i = 0; _ use a counter so the loop will be finite;
 :loop;
-VAR i = $i 1 +;
+VAR INT i = $i 1 +;
 PRNT Loop iteration $i / 5;
 IF i < 5 : GOTO loop;
 PRNT Loop ended;
